@@ -5,16 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เครื่องคำนวณน้ำหนักวัสดุ</title>
     <style>
+        /* CSS สำหรับจัดให้อยู่ตรงกลางหน้าจอ (Center Alignment) */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
-            padding: 20px;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        
+        /* สไตล์ของการ์ดหลักที่อยู่ตรงกลาง */
+        .app-card {
             max-width: 600px;
-            margin: auto;
+            width: 95%; 
+            padding: 20px;
             border: 1px solid #ddd;
             border-radius: 8px;
             background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+            margin: 20px; 
         }
+
+        .container {
+            padding: 0; 
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -24,7 +41,6 @@
             border-bottom: 2px solid #007bff;
         }
         .logo {
-            /* Keep .logo styles for structure, image handles visual */
             font-size: 2em;
             font-weight: bold;
             color: #007bff;
@@ -40,9 +56,6 @@
         h2 {
             text-align: center;
             color: #333;
-        }
-        .container {
-            padding: 20px;
         }
         .form-group {
             margin-bottom: 15px;
@@ -82,83 +95,111 @@
             border-radius: 4px;
             font-size: 1em;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #0056b3;
         }
+        
+        /* CSS สำหรับแสดงรูปทรงวัสดุ */
+        .shape-image-container {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px dashed #007bff50;
+            border-radius: 8px;
+            background-color: #f8faff;
+        }
+        .shape-image-container img {
+            max-width: 90%;
+            /* ขนาดที่แนะนำเพื่อให้แสดงผลได้ดี */
+            max-height: 100px; 
+            height: auto;
+            border-radius: 4px;
+            display: none; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body>
+    
+    <!-- New wrapper for the centered card -->
+    <div class="app-card">
 
-    <div class="header">
-        <div class="logo">
-            <!-- โลโก้ยังคงชี้ไปที่ไฟล์ logo.png ในโฟลเดอร์เดียวกัน -->
-            <img src="./logo.png" alt="Jutawan Logo" style="height: 50px; width: auto; border-radius: 4px; display: block;"/>
-        </div>
-        <div class="contact-info">
-            <p>โทร: 02-2940066-8</p>
-            <p>บริษัท จุฑาวรรณ จำกัด</p>
-        </div>
-    </div>
-
-    <div class="container">
-        <h2>เครื่องคำนวณน้ำหนักวัสดุ</h2>
-        
-        <div class="form-group">
-            <label for="material_type">เลือกประเภทวัสดุ:</label>
-            <select id="material_type" style="width: 100%;">
-                <option value="steel">เหล็ก/อลูมิเนียม</option>
-                <option value="stainless">สแตนเลส</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="grade">เลือกเกรดวัสดุ:</label>
-            <select id="grade" style="width: 100%;">
-                </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="shape">เลือกรูปทรง:</label>
-            <select id="shape" style="width: 100%;">
-                <option value="sheet">แผ่น (Sheet)</option>
-                <option value="flat_bar">แบน (Flat Bar)</option>
-                <option value="hexagon">หกเหลี่ยม (Hexagon)</option>
-                <option value="square_pipe">กล่องสี่เหลี่ยม (Square Pipe)</option>
-                <option value="rectangular_pipe">กล่องสี่เหลี่ยมผืนผ้า (Rectangular Pipe)</option>
-                <option value="angle">ฉาก (Angle)</option>
-                <option value="square_bar">สี่เหลี่ยมตัน (Square Bar)</option>
-                <option value="pipe">ท่อกลม (Pipe)</option>
-                <option value="round_bar">เส้นกลม (Round Bar)</option>
-            </select>
-        </div>
-
-        <div id="input-fields">
+        <div class="header">
+            <div class="logo">
+                <!-- โลโก้ยังคงชี้ไปที่ไฟล์ logo.png ในโฟลเดอร์เดียวกัน -->
+                <img src="./logo.png" alt="Jutawan Logo" style="height: 50px; width: auto; border-radius: 4px; display: block;"/>
             </div>
-        
-        <div class="form-group">
-            <label for="quantity">จำนวนที่ต้องการ:</label>
-            <input type="number" id="quantity" value="1" min="1" style="width: 100%;">
+            <div class="contact-info">
+                <p>โทร: 02-2940066-8</p>
+                <p>บริษัท จุฑาวรรณ จำกัด</p>
+            </div>
         </div>
 
-        <button onclick="calculateWeight()">คำนวณ</button>
+        <div class="container">
+            <h2>เครื่องคำนวณน้ำหนักวัสดุ</h2>
+            
+            <div class="form-group">
+                <label for="material_type">เลือกประเภทวัสดุ:</label>
+                <select id="material_type" style="width: 100%;">
+                    <option value="steel">เหล็ก/อลูมิเนียม</option>
+                    <option value="stainless">สแตนเลส</option>
+                </select>
+            </div>
 
-        <hr style="margin-top: 20px;">
-        
-        <div class="result-box">
-            <span id="result">น้ำหนักรวม: 0.00 กิโลกรัม</span>
+            <div class="form-group">
+                <label for="grade">เลือกเกรดวัสดุ:</label>
+                <select id="grade" style="width: 100%;">
+                    </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="shape">เลือกรูปทรง:</label>
+                <select id="shape" style="width: 100%;">
+                    <option value="sheet">แผ่น (Sheet)</option>
+                    <option value="flat_bar">แบน (Flat Bar)</option>
+                    <option value="hexagon">หกเหลี่ยม (Hexagon)</option>
+                    <option value="square_pipe">กล่องสี่เหลี่ยม (Square Pipe)</option>
+                    <option value="rectangular_pipe">กล่องสี่เหลี่ยมผืนผ้า (Rectangular Pipe)</option>
+                    <option value="angle">ฉาก (Angle)</option>
+                    <option value="square_bar">สี่เหลี่ยมตัน (Square Bar)</option>
+                    <option value="pipe">ท่อกลม (Pipe)</option>
+                    <option value="round_bar">เส้นกลม (Round Bar)</option>
+                </select>
+            </div>
+            
+            <!-- ส่วนใหม่สำหรับแสดงรูปภาพรูปทรง -->
+            <div id="shape-visual" class="shape-image-container">
+                <!-- รูปภาพจะถูกโหลดจาก URL ที่คุณกำหนดใน JavaScript -->
+                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;"/>
+                <p id="shape-description" style="font-size: 0.85em; color: #777; margin-top: 5px;">เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง</p>
+            </div>
+            
+            <div id="input-fields">
+                </div>
+            
+            <div class="form-group">
+                <label for="quantity">จำนวนที่ต้องการ:</label>
+                <input type="number" id="quantity" value="1" min="1" style="width: 100%;">
+            </div>
+
+            <button onclick="calculateWeight()">คำนวณ</button>
+
+            <hr style="margin-top: 20px;">
+            
+            <div class="result-box">
+                <span id="result">น้ำหนักรวม: 0.00 กิโลกรัม</span>
+            </div>
         </div>
-    </div>
+    </div> <!-- End of .app-card -->
 
     <script>
         const PI = 3.14159265359;
         
         // Data for different material grades and their shape-dependent densities (kg/m^3)
-        // Grades with shape-dependent density store an object: { rect: density_for_sheet_bar_pipe, round: density_for_round_pipe }
-        // Grades with fixed density store a number.
         const gradesData = {
             'steel': {
-                // RULES 1 & 2: Steel (All Grades): Rect=7850, Round=6160
                 'S50C (เหล็กทั่วไป)': { rect: 7850, round: 6160 },
                 'SKD11 / KD11 / KD11S': { rect: 7850, round: 6160 },
                 'SKD61': { rect: 7850, round: 6160 },
@@ -172,16 +213,11 @@
                 'FH5': { rect: 7850, round: 6160 },
                 'S45C (เหล็กหัวแดง)': { rect: 7850, round: 6160 },
                 'SCM440 (เหล็กสีฟ้า)': { rect: 7850, round: 6160 },
-                
-                // RULES 3 & 4: Aluminum Grades (using fixed original values for 'round' as fallback)
-                // A5083: Rule 3 (2700) for rect.
                 'A5083 (อลูมิเนียม)': { rect: 2700, round: 2660 }, 
-                // A6061 & A7075: Rule 4 (2800) for rect (A6061 takes the later 2800 value).
                 'A6061 (อลูมิเนียม)': { rect: 2800, round: 2700 }, 
                 'A7075 (อลูมิเนียม)': { rect: 2800, round: 2810 } 
             },
             'stainless': {
-                // Stainless grades: No new rules, keep original fixed density regardless of shape.
                 '304 (ค่ากลาง)': 7930,
                 '301CSP': 7930,
                 '316L': 7980,
@@ -191,6 +227,25 @@
             }
         };
 
+        // *******************************************************************
+        // ********** REPLACE THESE URLS WITH YOUR ACTUAL HOSTED PNG PATHS **********
+        // *******************************************************************
+        // Placeholder URLs ที่คุณต้องนำไปแทนที่ด้วย URL จริงจาก GitHub/Hosting ของคุณ
+        const SHAPE_BASE_URL = 'https://your-github-or-hosting-url/images/'; // URL ฐานสำหรับเก็บรูปภาพ
+        
+        const shapeVisuals = {
+            'sheet': { url: SHAPE_BASE_URL + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
+            'flat_bar': { url: SHAPE_BASE_URL + 'flat_bar.png', desc: 'รูปทรงแบน'},
+            'hexagon': { url: SHAPE_BASE_URL + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
+            'square_pipe': { url: SHAPE_BASE_URL + 'square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
+            'rectangular_pipe': { url: SHAPE_BASE_URL + 'rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
+            'angle': { url: SHAPE_BASE_URL + 'angle.png', desc: 'รูปทรงฉาก (L-shape)'},
+            'square_bar': { url: SHAPE_BASE_URL + 'square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
+            'pipe': { url: SHAPE_BASE_URL + 'pipe.png', desc: 'รูปทรงท่อกลม'},
+            'round_bar': { url: SHAPE_BASE_URL + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
+        };
+        // *******************************************************************
+        
         // ฟังก์ชันสำหรับสร้าง Dropdown หน่วยวัดทั้งหมด
         function getAllUnitSelect(id, defaultUnit = 'mm') {
             const options = {
@@ -211,10 +266,27 @@
             return selectHtml;
         }
 
-        // ฟังก์ชันสำหรับสร้างช่องกรอกข้อมูล (ไม่มีการเปลี่ยนแปลง)
+        // ฟังก์ชันสำหรับสร้างช่องกรอกข้อมูล (พร้อมแสดงภาพตัวอย่าง)
         function updateInputFields() {
             const shape = document.getElementById('shape').value;
             const inputFieldsDiv = document.getElementById('input-fields');
+            const shapeImage = document.getElementById('shape-image');
+            const shapeDesc = document.getElementById('shape-description');
+
+            // --- 1. Update Shape Visuals ---
+            const visual = shapeVisuals[shape];
+            if (visual) {
+                // โหลดภาพจาก URL ที่คุณกำหนด
+                shapeImage.src = visual.url;
+                shapeImage.alt = visual.desc;
+                shapeDesc.innerText = visual.desc;
+                shapeImage.style.display = 'block'; 
+            } else {
+                shapeImage.style.display = 'none'; 
+                shapeDesc.innerText = 'เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง';
+            }
+            // ---------------------------------
+
             inputFieldsDiv.innerHTML = '';
             
             let html = '';
@@ -235,9 +307,6 @@
                 html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width1">ความกว้าง 1:</label><input type="number" id="width1" step="0.01" min="1">${getAllUnitSelect('width1_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width2">ความกว้าง 2:</label><input type="number" id="width2" step="0.01" min="1">${getAllUnitSelect('width2_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'square_bar') {
-                html += `<div class="input-group"><label for="size">ขนาด:</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
             } else if (shape === 'pipe') {
                 html += `<div class="input-group"><label for="od">เส้นผ่านศูนย์กลางนอก:</label><input type="number" id="od" step="0.01" min="1">${getAllUnitSelect('od_unit', 'mm')}</div>`;
@@ -263,7 +332,6 @@
             const currentGrades = gradesData[materialType];
             for (const gradeName in currentGrades) {
                 const option = document.createElement('option');
-                // IMPORTANT: Store the grade name string, not the density value
                 option.value = gradeName; 
                 option.text = gradeName;
                 gradeDropdown.appendChild(option);
@@ -277,6 +345,7 @@
             updateGradeDropdown(); // Initial population
             document.getElementById('material_type').addEventListener('change', updateGradeDropdown);
             document.getElementById('shape').addEventListener('change', updateInputFields);
+            updateInputFields(); // Call this initially to show the first image
         });
         
         function calculateWeight() {
@@ -290,7 +359,6 @@
             
             // --- Determine Density based on Shape and Grade ---
             if (typeof gradeData === 'object' && gradeData !== null) {
-                // Determine shape group for grades that have shape-dependent densities
                 const rectShapes = ['sheet', 'flat_bar', 'square_bar', 'hexagon', 'square_pipe', 'rectangular_pipe', 'angle'];
                 const roundShapes = ['round_bar', 'pipe'];
 
@@ -299,11 +367,9 @@
                 } else if (roundShapes.includes(shape)) {
                     density = gradeData.round;
                 } else {
-                    // Fallback to rect density if shape is somehow not covered (shouldn't happen with current options)
                     density = gradeData.rect; 
                 }
             } else {
-                // Use the fixed density value for grades like Stainless Steel
                 density = gradeData;
             }
 
