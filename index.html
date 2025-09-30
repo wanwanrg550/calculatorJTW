@@ -230,21 +230,22 @@
             }
         };
 
-        // ********** เปลี่ยนไปใช้ Local Asset Paths ที่ได้รับการยืนยันแล้ว **********
+        // ********** อัปเดตพาธ GitHub ให้ถูกต้อง และใช้ Local Path เป็น Fallback **********
         
-        // เราจะไม่ใช้ SHAPE_BASE_PATH จาก GitHub อีกต่อไป เพื่อหลีกเลี่ยงปัญหา CORS
+        // 1. พาธฐานที่ถูกต้อง (รวมโฟลเดอร์ images)
+        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/images/';
         
-        // อัปเดต shapeVisuals ให้ใช้ลิงก์ไฟล์ที่อัปโหลดโดยตรง
+        // 2. อัปเดต shapeVisuals ให้ใช้ Local Path เป็นหลัก และมี GitHub Path เป็นทางเลือก
         const shapeVisuals = {
-            'sheet': { url: './sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
-            'flat_bar': { url: './flat_bar.png', desc: 'รูปทรงแบน'},
-            'hexagon': { url: './hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
-            'square_pipe': { url: './square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
-            'rectangular_pipe': { url: './rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
-            'angle': { url: './angle.png', desc: 'รูปทรงฉาก (L-shape)'},
-            'square_bar': { url: './square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
-            'pipe': { url: './pipe.png', desc: 'รูปทรงท่อกลม'},
-            'round_bar': { url: './round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
+            'sheet': { url: './sheet.png', github_url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
+            'flat_bar': { url: './flat_bar.png', github_url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
+            'hexagon': { url: './hexagon.png', github_url: SHAPE_BASE_PATH + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
+            'square_pipe': { url: './square_pipe.png', github_url: SHAPE_BASE_PATH + 'square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
+            'rectangular_pipe': { url: './rectangular_pipe.png', github_url: SHAPE_BASE_PATH + 'rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
+            'angle': { url: './angle.png', github_url: SHAPE_BASE_PATH + 'angle.png', desc: 'รูปทรงฉาก (L-shape)'},
+            'square_bar': { url: './square_bar.png', github_url: SHAPE_BASE_PATH + 'square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
+            'pipe': { url: './pipe.png', github_url: SHAPE_BASE_PATH + 'pipe.png', desc: 'รูปทรงท่อกลม'},
+            'round_bar': { url: './round_bar.png', github_url: SHAPE_BASE_PATH + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
         };
         // *************************************************************************
         
@@ -278,13 +279,24 @@
             // --- 1. Update Shape Visuals ---
             const visual = shapeVisuals[shape];
             if (visual) {
-                // ใช้ URL จาก Local Files
+                // ใช้ Local Path เป็นอันดับแรก เพราะทำงานได้แน่นอนใน Immersive
                 shapeImage.src = visual.url;
                 shapeImage.alt = visual.desc;
                 shapeDesc.innerText = visual.desc;
                 shapeImage.style.display = 'block'; 
-                
-                // ไม่ต้องใช้ onerror/onload สำหรับลิงก์ Local File
+
+                // เพิ่ม Fallback ในกรณีที่ Local file โหลดไม่ได้ ให้ลองใช้ GitHub Path
+                shapeImage.onerror = function() {
+                    console.warn("Local file failed to load, attempting to use GitHub URL.");
+                    shapeImage.src = visual.github_url; // ลองดึงจาก GitHub
+                    
+                    // หาก GitHub ก็ยังโหลดไม่ได้ ให้ซ่อนรูป
+                    shapeImage.onerror = function() {
+                        console.error("GitHub URL also failed to load. Image hidden.");
+                        shapeImage.style.display = 'none';
+                        shapeDesc.innerText = 'ไม่สามารถโหลดภาพตัวอย่างได้';
+                    };
+                };
                 
             } else {
                 shapeImage.style.display = 'none'; 
