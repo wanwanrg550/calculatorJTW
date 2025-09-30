@@ -4,462 +4,501 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เครื่องคำนวณน้ำหนักวัสดุ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* CSS สำหรับจัดให้อยู่ตรงกลางหน้าจอ (Center Alignment) */
+        /* Custom font for better Thai display */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
+            font-family: 'Inter', 'Kanit', sans-serif;
+            background-color: #f3f4f6;
         }
-        
-        /* สไตล์ของการ์ดหลักที่อยู่ตรงกลาง */
-        .app-card {
+        /* Custom styles for the calculator card */
+        .calculator-card {
             max-width: 600px;
-            width: 95%; 
-            padding: 20px;
-            border: 1px solid #ddd;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .form-select, .form-input {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
             border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
-            margin: 20px; 
+            width: 100%;
+            transition: border-color 0.2s;
         }
-
-        .container {
-            padding: 0; 
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: #3b82f6; /* Blue-500 */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
         }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #007bff;
+        .select-wrapper {
+            position: relative;
         }
-        .logo {
-            font-size: 2em;
-            font-weight: bold;
-            color: #007bff;
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 0.75rem;
+            color: #4b5563;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
         }
-        .contact-info {
-            text-align: right;
-        }
-        .contact-info p {
-            margin: 0;
-            font-size: 0.9em;
-            color: #555;
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .input-group {
+        .input-group-text {
+            padding: 0.75rem 1rem;
+            background-color: #e5e7eb;
+            border: 1px solid #d1d5db;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            white-space: nowrap;
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
         }
-        .input-group label {
-            flex-basis: 50%;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        .input-group input, .input-group select {
-            flex-basis: 50%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .input-group .form-input {
+            border-right: none;
+            border-radius: 8px 0 0 8px;
         }
         .result-box {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 4px;
+            background-color: #f0fdf4; /* Green-50 */
+            border: 1px solid #4ade80; /* Green-400 */
+            color: #166534; /* Green-900 */
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
             text-align: center;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
         }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        
-        /* CSS สำหรับแสดงรูปทรงวัสดุ */
-        .shape-image-container {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px dashed #007bff50;
-            border-radius: 8px;
-            background-color: #f8faff;
-            /* ใช้ Flexbox จัดรูปภาพและข้อความให้อยู่ตรงกลางแนวนอน */
-            display: flex; 
-            flex-direction: column;
-            align-items: center; /* Center horizontally */
-            justify-content: center; /* Center vertically if container height allows */
-        }
-        .shape-image-container img {
-            display: block !important; 
-            max-width: 90%;
-            max-height: 100px; 
-            height: auto;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 8px; /* Space between image and description */
+        .result-value {
+            font-size: 2.25rem;
+            font-weight: 700;
         }
     </style>
 </head>
 <body>
-    
-    <!-- New wrapper for the centered card -->
-    <div class="app-card">
 
-        <div class="header">
-            <div class="logo">
-                <!-- โลโก้ใช้พาธเดิมที่ควรจะทำงานได้ -->
-                <img src="./logo.png" alt="Jutawan Logo" style="height: 50px; width: auto; border-radius: 4px; display: block;"/>
-            </div>
-            <div class="contact-info">
-                <p>โทร: 02-2940066-8</p>
-                <p>บริษัท จุฑาวรรณ จำกัด</p>
-            </div>
-        </div>
+<div class="calculator-card">
+    <header class="text-center mb-6">
+        <!-- FIXED: Ensure logo path is correct. logo.png is next to index.html -->
+        <img src="logo.png" alt="JUDHA Logo" class="mx-auto h-12 mb-4" onerror="this.onerror=null; this.src='https://placehold.co/150x50/3b82f6/ffffff?text=LOGO'">
+        <h1 class="text-3xl font-bold text-gray-800">เครื่องคำนวณน้ำหนักวัสดุ</h1>
+    </header>
 
-        <div class="container">
-            <h2>เครื่องคำนวณน้ำหนักวัสดุ</h2>
-            
-            <div class="form-group">
-                <label for="material_type">เลือกประเภทวัสดุ:</label>
-                <select id="material_type" style="width: 100%;">
-                    <option value="steel">เหล็ก/อลูมิเนียม</option>
-                    <option value="stainless">สแตนเลส</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="grade">เลือกเกรดวัสดุ:</label>
-                <select id="grade" style="width: 100%;">
-                    </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="shape">เลือกรูปทรง:</label>
-                <select id="shape" style="width: 100%;">
-                    <option value="sheet">แผ่น (Sheet)</option>
-                    <option value="flat_bar">แบน (Flat Bar)</option>
-                    <option value="hexagon">หกเหลี่ยม (Hexagon)</option>
-                    <option value="square_pipe">กล่องสี่เหลี่ยม (Square Pipe)</option>
-                    <option value="rectangular_pipe">กล่องสี่เหลี่ยมผืนผ้า (Rectangular Pipe)</option>
-                    <option value="angle">ฉาก (Angle)</option>
-                    <option value="square_bar">สี่เหลี่ยมตัน (Square Bar)</option>
-                    <option value="pipe">ท่อกลม (Pipe)</option>
-                    <option value="round_bar">เส้นกลม (Round Bar)</option>
-                </select>
-            </div>
-            
-            <!-- ส่วนใหม่สำหรับแสดงรูปภาพรูปทรง -->
-            <div id="shape-visual" class="shape-image-container">
-                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px; display: none;"/>
-                <p id="shape-description" style="font-size: 0.85em; color: #777; margin-top: 5px;">เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง</p>
-            </div>
-            
-            <div id="input-fields">
-                </div>
-            
-            <div class="form-group">
-                <label for="quantity">จำนวนที่ต้องการ:</label>
-                <input type="number" id="quantity" value="1" min="1" style="width: 100%;">
-            </div>
-
-            <button onclick="calculateWeight()">คำนวณ</button>
-
-            <hr style="margin-top: 20px;">
-            
-            <div class="result-box">
-                <span id="result">น้ำหนักรวม: 0.00 กิโลกรัม</span>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- 1. เลือกประเภทวัสดุ -->
+        <div>
+            <label for="materialType" class="block text-sm font-medium text-gray-700 mb-1">เลือกประเภทวัสดุ:</label>
+            <div class="select-wrapper">
+                <select id="materialType" class="form-select"></select>
             </div>
         </div>
-    </div> <!-- End of .app-card -->
 
-    <script>
-        const PI = 3.14159265359;
-        
-        // Data for different material grades and their shape-dependent densities (kg/m^3)
-        const gradesData = {
-            'steel': {
-                'S50C (เหล็กทั่วไป)': { rect: 7850, round: 6160 },
-                'SKD11 / KD11 / KD11S': { rect: 7850, round: 6160 },
-                'SKD61': { rect: 7850, round: 6160 },
-                'KDA1S': { rect: 7850, round: 6160 },
-                '1.2367': { rect: 7850, round: 6160 },
-                'KTV': { rect: 7850, round: 6160 },
-                'P20': { rect: 7850, round: 6160 },
-                'KPM30': { rect: 7850, round: 6160 },
-                'KPMAX': { rect: 7850, round: 6160 },
-                'SUJ2': { rect: 7850, round: 6160 },
-                'FH5': { rect: 7850, round: 6160 },
-                'S45C (เหล็กหัวแดง)': { rect: 7850, round: 6160 },
-                'SCM440 (เหล็กสีฟ้า)': { rect: 7850, round: 6160 },
-                'A5083 (อลูมิเนียม)': { rect: 2700, round: 2660 }, 
-                'A6061 (อลูมิเนียม)': { rect: 2800, round: 2700 }, 
-                'A7075 (อลูมิเนียม)': { rect: 2800, round: 2810 } 
-            },
-            'stainless': {
-                '304 (ค่ากลาง)': 7930,
-                '301CSP': 7930,
-                '316L': 7980,
-                '430': 7800,
-                '441': 7700,
-                '420J2': 7750
-            }
-        };
+        <!-- 2. เลือกเกรดวัสดุ -->
+        <div>
+            <label for="materialGrade" class="block text-sm font-medium text-gray-700 mb-1">เลือกเกรดวัสดุ:</label>
+            <div class="select-wrapper">
+                <select id="materialGrade" class="form-select"></select>
+            </div>
+        </div>
+    </div>
 
-        // ********** อัปเดตพาธ GitHub ให้ถูกต้อง และใช้ Local Path เป็น Fallback **********
-        
-        // 1. พาธฐานที่ถูกต้อง (รวมโฟลเดอร์ images)
-        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/images/';
-        
-        // 2. อัปเดต shapeVisuals ให้ใช้ Local Path เป็นหลัก และมี GitHub Path เป็นทางเลือก
-        const shapeVisuals = {
-            'sheet': { url: './sheet.png', github_url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
-            'flat_bar': { url: './flat_bar.png', github_url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
-            'hexagon': { url: './hexagon.png', github_url: SHAPE_BASE_PATH + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
-            'square_pipe': { url: './square_pipe.png', github_url: SHAPE_BASE_PATH + 'square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
-            'rectangular_pipe': { url: './rectangular_pipe.png', github_url: SHAPE_BASE_PATH + 'rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
-            'angle': { url: './angle.png', github_url: SHAPE_BASE_PATH + 'angle.png', desc: 'รูปทรงฉาก (L-shape)'},
-            'square_bar': { url: './square_bar.png', github_url: SHAPE_BASE_PATH + 'square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
-            'pipe': { url: './pipe.png', github_url: SHAPE_BASE_PATH + 'pipe.png', desc: 'รูปทรงท่อกลม'},
-            'round_bar': { url: './round_bar.png', github_url: SHAPE_BASE_PATH + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
-        };
-        // *************************************************************************
-        
-        // ฟังก์ชันสำหรับสร้าง Dropdown หน่วยวัดทั้งหมด
-        function getAllUnitSelect(id, defaultUnit = 'mm') {
-            const options = {
-                'm': { text: 'เมตร (m.)', value: 1000 },
-                'mm': { text: 'มิลลิเมตร (mm.)', value: 1 },
-                'cm': { text: 'เซนติเมตร (cm.)', value: 10 },
-                'inches': { text: 'นิ้ว (inches)', value: 25.4 },
-                'ft': { text: 'ฟุต (ft.)', value: 304.8 },
-                'hun': { text: 'หุล (hun)', value: 3.175 }
-            };
+    <!-- 3. เลือกรูปทรง -->
+    <div class="mb-6">
+        <label for="shapeType" class="block text-sm font-medium text-gray-700 mb-1">เลือกรูปทรง:</label>
+        <div class="select-wrapper">
+            <select id="shapeType" class="form-select"></select>
+        </div>
+    </div>
 
-            let selectHtml = `<select id="${id}" style="width: 100px; margin-left: 10px;">`;
-            for (const unit in options) {
-                const isSelected = unit === defaultUnit ? 'selected' : '';
-                selectHtml += `<option value="${options[unit].value}" ${isSelected}>${options[unit].text}</option>`;
-            }
-            selectHtml += `</select>`;
-            return selectHtml;
-        }
+    <!-- Shape Visualization Area -->
+    <div id="shapeDisplay" class="p-6 border border-gray-200 bg-gray-50 rounded-lg text-center mb-6">
+        <!-- The JS will set the correct image path (images/hexagon.png) here -->
+        <img id="shapeImage" src="" alt="รูปทรงวัสดุ" class="mx-auto h-24 object-contain mb-4" onerror="this.onerror=null; this.src='https://placehold.co/100x100/aaaaaa/ffffff?text=NO+IMAGE'">
+        <p id="shapeName" class="text-lg font-semibold text-gray-600">รูปทรง</p>
+    </div>
 
-        // ฟังก์ชันสำหรับสร้างช่องกรอกข้อมูล (พร้อมแสดงภาพตัวอย่าง)
-        function updateInputFields() {
-            const shape = document.getElementById('shape').value;
-            const inputFieldsDiv = document.getElementById('input-fields');
-            const shapeImage = document.getElementById('shape-image');
-            const shapeDesc = document.getElementById('shape-description');
+    <!-- Dimension Inputs Area -->
+    <div id="dimensionInputs" class="space-y-4 mb-6">
+        <!-- Dynamically generated inputs here -->
+    </div>
 
-            // --- 1. Update Shape Visuals ---
-            const visual = shapeVisuals[shape];
-            if (visual) {
-                // ใช้ Local Path เป็นอันดับแรก เพราะทำงานได้แน่นอนใน Immersive
-                shapeImage.src = visual.url;
-                shapeImage.alt = visual.desc;
-                shapeDesc.innerText = visual.desc;
-                shapeImage.style.display = 'block'; 
+    <div class="grid grid-cols-3 gap-4 mb-8">
+        <!-- ความยาว (Length) -->
+        <div class="col-span-2">
+            <label for="lengthValue" class="block text-sm font-medium text-gray-700 mb-1">ความยาว:</label>
+            <input type="number" id="lengthValue" class="form-input" value="1.0" min="0.001" step="0.01">
+        </div>
+        <div>
+            <label for="lengthUnit" class="block text-sm font-medium text-gray-700 mb-1 invisible">หน่วย</label>
+            <div class="select-wrapper">
+                <select id="lengthUnit" class="form-select"></select>
+            </div>
+        </div>
+    </div>
 
-                // เพิ่ม Fallback ในกรณีที่ Local file โหลดไม่ได้ ให้ลองใช้ GitHub Path
-                shapeImage.onerror = function() {
-                    console.warn("Local file failed to load, attempting to use GitHub URL.");
-                    shapeImage.src = visual.github_url; // ลองดึงจาก GitHub
-                    
-                    // หาก GitHub ก็ยังโหลดไม่ได้ ให้ซ่อนรูป
-                    shapeImage.onerror = function() {
-                        console.error("GitHub URL also failed to load. Image hidden.");
-                        shapeImage.style.display = 'none';
-                        shapeDesc.innerText = 'ไม่สามารถโหลดภาพตัวอย่างได้';
-                    };
-                };
-                
-            } else {
-                shapeImage.style.display = 'none'; 
-                shapeDesc.innerText = 'เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง';
-            }
-            // ---------------------------------
+    <!-- จำนวนที่ต้องการ (Quantity) -->
+    <div class="mb-6">
+        <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">จำนวนที่ต้องการ:</label>
+        <input type="number" id="quantity" class="form-input" value="1" min="1" step="1">
+    </div>
 
-            inputFieldsDiv.innerHTML = '';
-            
-            let html = '';
+    <!-- Calculate Button -->
+    <button id="calculateButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-150 shadow-md hover:shadow-lg">
+        คำนวณ
+    </button>
 
-            if (shape === 'sheet' || shape === 'flat_bar') {
-                html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="width">ความกว้าง:</label><input type="number" id="width" step="0.01" min="1">${getAllUnitSelect('width_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'hexagon') {
-                html += `<div class="input-group"><label for="size">ขนาด (W/H):</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'square_pipe' || shape === 'rectangular_pipe') {
-                html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="width">ความกว้าง:</label><input type="number" id="width" step="0.01" min="1">${getAllUnitSelect('width_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="height">ความสูง:</label><input type="number" id="height" step="0.01" min="1">${getAllUnitSelect('height_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'angle') {
-                html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="width1">ความกว้าง 1:</label><input type="number" id="width1" step="0.01" min="1">${getAllUnitSelect('width1_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="width2">ความกว้าง 2:</label><input type="number" id="width2" step="0.01" min="1">${getAllUnitSelect('width2_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'square_bar') {
-                html += `<div class="input-group"><label for="size">ขนาด:</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'pipe') {
-                html += `<div class="input-group"><label for="od">เส้นผ่านศูนย์กลางนอก:</label><input type="number" id="od" step="0.01" min="1">${getAllUnitSelect('od_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="id">เส้นผ่านศูนย์กลางใน:</label><input type="number" id="id" step="0.01" min="1">${getAllUnitSelect('id_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'round_bar') {
-                html += `<div class="input-group"><label for="diameter">เส้นผ่านศูนย์กลาง:</label><input type="number" id="diameter" step="0.01" min="1">${getAllUnitSelect('diameter_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            }
+    <!-- Result Area -->
+    <div id="resultArea" class="result-box hidden">
+        <p class="text-lg font-medium">น้ำหนักรวมโดยประมาณ:</p>
+        <p class="result-value"><span id="totalWeight">0.00</span> กิโลกรัม (kg)</p>
+    </div>
+</div>
 
-            inputFieldsDiv.innerHTML = html;
-        }
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONSTANTS AND CONFIGURATION ---
 
-        // อัปเดต Dropdown เกรดวัสดุตามประเภทวัสดุ
-        function updateGradeDropdown() {
-            const materialType = document.getElementById('material_type').value;
-            const gradeDropdown = document.getElementById('grade');
-            
-            // Clear existing options
-            gradeDropdown.innerHTML = '';
-            
-            // Populate with new options
-            const currentGrades = gradesData[materialType];
-            for (const gradeName in currentGrades) {
-                const option = document.createElement('option');
-                option.value = gradeName; 
-                option.text = gradeName;
-                gradeDropdown.appendChild(option);
-            }
+        // CRITICAL FIX: The image path prefix MUST be correct.
+        // Assuming your structure is: index.html, logo.png, images/ (folder containing all shape images)
+        const IMAGE_PATH_PREFIX = 'images/';
 
-            // Update input fields based on the new shape selection
-            updateInputFields();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            updateGradeDropdown(); // Initial population
-            document.getElementById('material_type').addEventListener('change', updateGradeDropdown);
-            document.getElementById('shape').addEventListener('change', updateInputFields);
-            updateInputFields(); // Call this initially to show the first image
-        });
-        
-        function calculateWeight() {
-            const shape = document.getElementById('shape').value;
-            const gradeName = document.getElementById('grade').value; 
-            const materialType = document.getElementById('material_type').value;
-            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
-            
-            let density;
-            const gradeData = gradesData[materialType][gradeName];
-            
-            // --- Determine Density based on Shape and Grade ---
-            if (typeof gradeData === 'object' && gradeData !== null) {
-                const rectShapes = ['sheet', 'flat_bar', 'square_bar', 'hexagon', 'square_pipe', 'rectangular_pipe', 'angle'];
-                const roundShapes = ['round_bar', 'pipe'];
-
-                if (rectShapes.includes(shape)) {
-                    density = gradeData.rect;
-                } else if (roundShapes.includes(shape)) {
-                    density = gradeData.round;
-                } else {
-                    density = gradeData.rect; 
+        // Density data (kg/mm³)
+        const materialData = {
+            'steel-aluminum': {
+                name: 'เหล็ก/อะลูมิเนียม',
+                grades: {
+                    'S50C': { name: 'S50C (เหล็กทั่วไป)', density: 0.00000785 }, // Standard Steel Density (7850 kg/m³ -> 0.00000785 kg/mm³)
+                    'A6061': { name: 'A6061 (อะลูมิเนียม)', density: 0.00000270 }, // Standard Aluminum Density (2700 kg/m³ -> 0.00000270 kg/mm³)
                 }
-            } else {
-                density = gradeData;
             }
+        };
 
-            if (!density || isNaN(density)) {
-                document.getElementById('result').innerText = `น้ำหนักรวม: 0.00 กิโลกรัม (Error: ไม่พบค่าความหนาแน่น)`;
+        // Shape calculation formulas (Area in mm², Mass in kg)
+        const shapeData = {
+            'round_bar': {
+                name: 'ทรงกลมตัน (Round Bar)',
+                image: 'round_bar.png',
+                dims: [{ id: 'D', label: 'เส้นผ่านศูนย์กลาง (D)', defaultUnit: 'mm' }],
+                formula: (dims) => {
+                    const D = dims.D;
+                    return (Math.PI / 4) * D * D; 
+                }
+            },
+            'pipe': {
+                name: 'ท่อกลม (Pipe)',
+                image: 'pipe.png',
+                dims: [
+                    { id: 'OD', label: 'เส้นผ่านศูนย์กลางภายนอก (OD)', defaultUnit: 'mm' },
+                    { id: 'WT', label: 'ความหนา (WT)', defaultUnit: 'mm' }
+                ],
+                formula: (dims) => {
+                    const OD = dims.OD;
+                    const WT = dims.WT;
+                    const ID = OD - 2 * WT;
+                    if (ID <= 0) return 0;
+                    return (Math.PI / 4) * (OD * OD - ID * ID); 
+                }
+            },
+            'square_bar': {
+                name: 'สี่เหลี่ยมจัตุรัสตัน (Square Bar)',
+                image: 'square_bar.png',
+                dims: [{ id: 'W', label: 'ความกว้าง (W)', defaultUnit: 'mm' }],
+                formula: (dims) => {
+                    const W = dims.W;
+                    return W * W; 
+                }
+            },
+            'square_pipe': {
+                name: 'ท่อสี่เหลี่ยมจัตุรัส (Square Pipe)',
+                image: 'square_pipe.png',
+                dims: [
+                    { id: 'W', label: 'ความกว้าง (W)', defaultUnit: 'mm' },
+                    { id: 'T', label: 'ความหนา (T)', defaultUnit: 'mm' }
+                ],
+                formula: (dims) => {
+                    const W = dims.W;
+                    const T = dims.T;
+                    const innerW = W - 2 * T;
+                    if (innerW <= 0) return 0;
+                    return W * W - innerW * innerW; 
+                }
+            },
+            'flat_bar': {
+                name: 'สี่เหลี่ยมผืนผ้าตัน (Flat Bar)',
+                image: 'flat_bar.png',
+                dims: [
+                    { id: 'W', label: 'ความกว้าง (W)', defaultUnit: 'mm' },
+                    { id: 'H', label: 'ความสูง (H)', defaultUnit: 'mm' }
+                ],
+                formula: (dims) => {
+                    const W = dims.W;
+                    const H = dims.H;
+                    return W * H; 
+                }
+            },
+            'rectangular_pipe': {
+                name: 'ท่อสี่เหลี่ยมผืนผ้า (Rectangular Pipe)',
+                image: 'rectangular_pipe.png',
+                dims: [
+                    { id: 'W', label: 'ความกว้าง (W)', defaultUnit: 'mm' },
+                    { id: 'H', label: 'ความสูง (H)', defaultUnit: 'mm' },
+                    { id: 'T', label: 'ความหนา (T)', defaultUnit: 'mm' }
+                ],
+                formula: (dims) => {
+                    const W = dims.W;
+                    const H = dims.H;
+                    const T = dims.T;
+                    const innerW = W - 2 * T;
+                    const innerH = H - 2 * T;
+                    if (innerW <= 0 || innerH <= 0) return 0;
+                    return (W * H) - (innerW * innerH); 
+                }
+            },
+            'hexagon': {
+                name: 'หกเหลี่ยมตัน (Hexagon)',
+                image: 'hexagon.png',
+                dims: [{ id: 'S', label: 'ระยะห่างระหว่างผิวเรียบ (S)', defaultUnit: 'mm' }],
+                formula: (dims) => {
+                    const S = dims.S;
+                    return (Math.sqrt(3) / 2) * S * S; 
+                }
+            },
+            'sheet': {
+                name: 'แผ่น (Sheet/Plate)',
+                image: 'sheet.png',
+                dims: [
+                    { id: 'W', label: 'ความกว้าง (W)', defaultUnit: 'mm' },
+                    { id: 'T', label: 'ความหนา (T)', defaultUnit: 'mm' }
+                ],
+                // For sheet, we calculate Volume (V = W*L*T) in main logic.
+                formula: (dims) => { return 1; } 
+            },
+             'angle': {
+                name: 'ฉาก (Angle Bar)',
+                image: 'angle.png',
+                dims: [
+                    { id: 'A', label: 'ปีกด้าน A (A)', defaultUnit: 'mm' },
+                    { id: 'B', label: 'ปีกด้าน B (B)', defaultUnit: 'mm' },
+                    { id: 'T', label: 'ความหนา (T)', defaultUnit: 'mm' }
+                ],
+                formula: (dims) => {
+                    const A = dims.A;
+                    const B = dims.B;
+                    const T = dims.T;
+                    // Area = (A * T) + ( (B - T) * T )
+                    return (A * T) + (B - T) * T;
+                }
+            }
+        };
+
+        // Unit conversion factors (Multiplier to convert the selected unit into the BASE UNIT: mm)
+        const unitConversions = {
+            'mm': { text: 'มิลลิเมตร (mm.)', value: 1 },
+            'cm': { text: 'เซนติเมตร (cm.)', value: 10 },
+            'm': { text: 'เมตร (m.)', value: 1000 },
+        };
+
+        // --- DOM ELEMENTS ---
+        const $materialType = document.getElementById('materialType');
+        const $materialGrade = document.getElementById('materialGrade');
+        const $shapeType = document.getElementById('shapeType');
+        const $shapeImage = document.getElementById('shapeImage');
+        const $shapeName = document.getElementById('shapeName');
+        const $dimensionInputs = document.getElementById('dimensionInputs');
+        const $lengthValue = document.getElementById('lengthValue');
+        const $lengthUnit = document.getElementById('lengthUnit');
+        const $quantity = document.getElementById('quantity');
+        const $calculateButton = document.getElementById('calculateButton');
+        const $totalWeight = document.getElementById('totalWeight');
+        const $resultArea = document.getElementById('resultArea');
+
+
+        // --- HELPER FUNCTIONS ---
+
+        /**
+         * Populates a select element with options from a data object.
+         */
+        function populateSelect(selectElement, dataObject, defaultValueKey) {
+            selectElement.innerHTML = '';
+            for (const key in dataObject) {
+                const option = document.createElement('option');
+                option.value = key;
+                const displayName = dataObject[key].text || dataObject[key].name;
+                option.textContent = displayName;
+                if (key === defaultValueKey) {
+                    option.selected = true;
+                }
+                selectElement.appendChild(option);
+            }
+        }
+
+        /**
+         * Renders the dynamic input fields based on the selected shape and updates the image.
+         */
+        function renderDimensionInputs() {
+            const selectedShapeKey = $shapeType.value;
+            const shape = shapeData[selectedShapeKey];
+            $dimensionInputs.innerHTML = '';
+            
+            // FIX: Ensure the image source is correctly constructed using the prefix
+            $shapeImage.src = IMAGE_PATH_PREFIX + shape.image;
+            $shapeName.textContent = shape.name;
+
+            shape.dims.forEach(dim => {
+                const unitKey = dim.defaultUnit || 'mm'; 
+                const unitText = unitConversions[unitKey].text;
+
+                const html = `
+                    <div>
+                        <label for="dim_${dim.id}" class="block text-sm font-medium text-gray-700 mb-1">${dim.label}:</label>
+                        <div class="flex">
+                            <input type="number" id="dim_${dim.id}" 
+                                   class="form-input" 
+                                   value="10.0" min="0.001" step="0.01" 
+                                   data-unit="${unitKey}"
+                                   placeholder="หน่วย: ${unitText}">
+                            <div class="input-group-text">${unitText}</div>
+                        </div>
+                    </div>
+                `;
+                $dimensionInputs.insertAdjacentHTML('beforeend', html);
+            });
+            
+            // Re-attach event listeners to the newly created inputs
+            $dimensionInputs.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', calculateWeight);
+            });
+
+            // Re-calculate the weight whenever dimensions change
+            calculateWeight();
+        }
+
+        /**
+         * Calculates the total weight based on current selections and inputs.
+         */
+        function calculateWeight() {
+            // Get selected material density
+            const gradeKey = $materialGrade.value;
+            const materialTypeKey = $materialType.value;
+            const density = materialData[materialTypeKey]?.grades[gradeKey]?.density;
+            
+            if (!density) {
+                $resultArea.classList.add('hidden');
                 return;
             }
-            // --- Density Determination Complete ---
 
-            let weight_per_piece = 0;
+            const selectedShapeKey = $shapeType.value;
+            const shape = shapeData[selectedShapeKey];
 
-            try {
-                // Note: All dimensions (thickness, width, size, diameter) are converted to mm
-                // Length is converted to mm (default is m * 1000)
+            // 1. Get Dimension Inputs (W, H, D, etc.) and ensure they are valid
+            const dimValues = {};
+            let allDimsValid = true;
+
+            shape.dims.forEach(dim => {
+                const inputElement = document.getElementById(`dim_${dim.id}`);
+                const value = parseFloat(inputElement ? inputElement.value : '0');
                 
-                if (shape === 'sheet' || shape === 'flat_bar') {
-                    const thickness = parseFloat(document.getElementById('thickness').value) * (parseFloat(document.getElementById('thickness_unit').value) || 1);
-                    const width = parseFloat(document.getElementById('width').value) * (parseFloat(document.getElementById('width_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    weight_per_piece = (thickness * width * length) * density / 1000000000;
-                } else if (shape === 'hexagon') {
-                    const size = parseFloat(document.getElementById('size').value) * (parseFloat(document.getElementById('size_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = (3 * sqrt(3) / 2) * size^2
-                    const area_constant = (3 * Math.sqrt(3) / 2);
-                    weight_per_piece = (Math.pow(size, 2) * area_constant * length) * density / 1000000000;
-                } else if (shape === 'square_pipe' || shape === 'rectangular_pipe') {
-                    const thickness = parseFloat(document.getElementById('thickness').value) * (parseFloat(document.getElementById('thickness_unit').value) || 1);
-                    const width = parseFloat(document.getElementById('width').value) * (parseFloat(document.getElementById('width_unit').value) || 1);
-                    const height = parseFloat(document.getElementById('height').value) * (parseFloat(document.getElementById('height_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = (W*H) - ((W - 2T) * (H - 2T))
-                    const area_mm = (width * height) - ((width - (thickness * 2)) * (height - (thickness * 2)));
-                    weight_per_piece = area_mm * length * density / 1000000000;
-                } else if (shape === 'angle') {
-                    const thickness = parseFloat(document.getElementById('thickness').value) * (parseFloat(document.getElementById('thickness_unit').value) || 1);
-                    const width1 = parseFloat(document.getElementById('width1').value) * (parseFloat(document.getElementById('width1_unit').value) || 1);
-                    const width2 = parseFloat(document.getElementById('width2').value) * (parseFloat(document.getElementById('width2_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = (W1*T) + ((W2-T)*T)
-                    const area_mm = (width1 * thickness) + ((width2 - thickness) * thickness);
-                    weight_per_piece = area_mm * length * density / 1000000000;
-                } else if (shape === 'square_bar') {
-                    const size = parseFloat(document.getElementById('size').value) * (parseFloat(document.getElementById('size_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = S^2
-                    weight_per_piece = Math.pow(size, 2) * length * density / 1000000000;
-                } else if (shape === 'pipe') {
-                    const od = parseFloat(document.getElementById('od').value) * (parseFloat(document.getElementById('od_unit').value) || 1);
-                    const id = parseFloat(document.getElementById('id').value) * (parseFloat(document.getElementById('id_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = (OD^2 - ID^2) * PI / 4
-                    const area_mm = (Math.pow(od, 2) - Math.pow(id, 2)) * PI / 4;
-                    weight_per_piece = area_mm * length * density / 1000000000;
-                } else if (shape === 'round_bar') {
-                    const diameter = parseFloat(document.getElementById('diameter').value) * (parseFloat(document.getElementById('diameter_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = D^2 * PI / 4
-                    const area_mm = Math.pow(diameter, 2) * PI / 4;
-                    weight_per_piece = area_mm * length * density / 1000000000;
+                if (isNaN(value) || value <= 0) {
+                    allDimsValid = false;
                 }
-            } catch (e) {
-                console.error("Calculation Error:", e);
-                weight_per_piece = 0;
-            }
-            
-            const total_weight = weight_per_piece * quantity;
-            document.getElementById('result').innerText = `น้ำหนักรวม: ${total_weight.toFixed(2)} กิโลกรัม (Density: ${density.toFixed(0)} kg/m³)`;
-        }
-    </script>
+                
+                // Dimensions are taken directly in mm (based on the current input rendering)
+                dimValues[dim.id] = value; 
+            });
 
-</body>
-</html>
+            if (!allDimsValid) {
+                $totalWeight.textContent = '0.00';
+                $resultArea.classList.remove('hidden');
+                return; 
+            }
+
+            // 2. Get Length and convert to mm
+            const lengthUnitKey = $lengthUnit.value;
+            const lengthMultiplier = unitConversions[lengthUnitKey].value;
+            const lengthValue = parseFloat($lengthValue.value) || 0;
+            const totalLength_mm = lengthValue * lengthMultiplier;
+
+            if (totalLength_mm <= 0) {
+                $totalWeight.textContent = '0.00';
+                $resultArea.classList.remove('hidden');
+                return;
+            }
+
+            // 3. Get Quantity
+            const quantity = parseInt($quantity.value) || 1;
+
+            let volume_mm3 = 0; 
+
+            if (selectedShapeKey === 'sheet') {
+                // Special case: Sheet uses W, T from dims, and totalLength_mm for L
+                const W = dimValues.W || 0;
+                const T = dimValues.T || 0; 
+                volume_mm3 = W * totalLength_mm * T; 
+            } else {
+                // Standard case: Calculate Cross-Sectional Area (mm²)
+                const crossSectionalArea_mm2 = shape.formula(dimValues);
+                
+                if (crossSectionalArea_mm2 <= 0) {
+                    $totalWeight.textContent = '0.00';
+                    $resultArea.classList.remove('hidden');
+                    return;
+                }
+                
+                // Volume = Area * Length
+                volume_mm3 = crossSectionalArea_mm2 * totalLength_mm;
+            }
+
+            // 4. Calculate Weight
+            // Weight (kg) = Volume (mm³) * Density (kg/mm³)
+            const singleWeight = volume_mm3 * density;
+            const totalWeight = singleWeight * quantity;
+
+            // 5. Display Result
+            $totalWeight.textContent = totalWeight.toFixed(2);
+            $resultArea.classList.remove('hidden');
+        }
+
+        // --- INITIALIZATION AND EVENT LISTENERS ---
+
+        function init() {
+            // 1. Populate Material Type (Default: steel-aluminum)
+            populateSelect($materialType, materialData, 'steel-aluminum');
+            
+            // 2. Populate Material Grade (Default: S50C)
+            const defaultMaterialKey = $materialType.value;
+            populateSelect($materialGrade, materialData[defaultMaterialKey].grades, 'S50C');
+
+            // 3. Populate Shape Type (Default: hexagon)
+            populateSelect($shapeType, shapeData, 'hexagon'); 
+
+            // 4. Populate Length Unit (Default: m)
+            populateSelect($lengthUnit, unitConversions, 'm'); 
+            
+            // 5. Render initial dimensions for the default shape
+            renderDimensionInputs();
+
+            // Attach core event listeners
+            $materialType.addEventListener('change', () => {
+                const newMaterialKey = $materialType.value;
+                populateSelect($materialGrade, materialData[newMaterialKey].grades, Object.keys(materialData[newMaterialKey].grades)[0]);
+                calculateWeight();
+            });
+
+            $materialGrade.addEventListener('change', calculateWeight);
+            $shapeType.addEventListener('change', renderDimensionInputs); 
+            $lengthValue.addEventListener('input', calculateWeight);
+            $lengthUnit.addEventListener('change', calculateWeight);
+            $quantity.addEventListener('input', calculateWeight);
+            
+            $calculateButton.addEventListener('click', calculateWeight);
+
+            calculateWeight();
+        }
+
+        // Run the initialization function
+        init();
+    });
+</script>
