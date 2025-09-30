@@ -224,7 +224,7 @@
             }
         };
 
-        // ********** การเปลี่ยนกลับ: ใช้ลิงก์ GitHub ภายนอก **********
+        // ********** การตั้งค่าพาธตามที่ผู้ใช้ร้องขอ: ไม่มี '/images/' **********
         
         // พาธหลักไปยังไฟล์รูปภาพบน GitHub
         const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/';
@@ -278,6 +278,14 @@
                 shapeImage.alt = visual.desc;
                 shapeDesc.innerText = visual.desc;
                 shapeImage.style.display = 'block'; 
+                
+                // *** ข้อควรระวัง: เนื่องจาก URL ที่ผู้ใช้แจ้งมาขึ้น 404
+                // เราจะเพิ่ม fallback ในกรณีที่โหลดภาพไม่สำเร็จ
+                shapeImage.onerror = () => {
+                    shapeDesc.innerText = visual.desc + " (ไม่สามารถโหลดภาพจาก GitHub ได้)";
+                    shapeImage.style.display = 'none';
+                };
+
             } else {
                 shapeImage.style.display = 'none'; 
                 shapeDesc.innerText = 'เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง';
