@@ -103,7 +103,8 @@
         
         /* CSS สำหรับแสดงรูปทรงวัสดุ */
         .shape-image-container {
-            text-align: center;
+            /* ลบ text-align: center; ออกไปตามคำขอ เพื่อให้รูปภาพแสดงผลชิดซ้าย */
+            /* text-align: center; */ 
             margin-bottom: 20px;
             padding: 15px;
             border: 1px dashed #007bff50;
@@ -111,12 +112,14 @@
             background-color: #f8faff;
         }
         .shape-image-container img {
+            /* กำหนดเป็น block เพื่อให้รูปภาพแสดงผลแบบชิดซ้าย */
+            display: block !important; 
             max-width: 90%;
             /* ขนาดที่แนะนำเพื่อให้แสดงผลได้ดี */
             max-height: 100px; 
             height: auto;
             border-radius: 4px;
-            display: none; 
+            /* ซ่อนภาพเริ่มต้น โดย JS จะเปลี่ยนเป็น block เมื่อโหลด */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
     </style>
@@ -171,9 +174,9 @@
             
             <!-- ส่วนใหม่สำหรับแสดงรูปภาพรูปทรง -->
             <div id="shape-visual" class="shape-image-container">
-                <!-- รูปภาพจะถูกโหลดจาก URL ที่คุณกำหนดใน JavaScript -->
                 <!-- เพิ่ม onerror เพื่อดีบักปัญหาการโหลด -->
-                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;" onerror="console.error('Image Load Error: ' + this.src);"/>
+                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px; display: none;" 
+                     onerror="console.error('Image Load Error: Cannot fetch image from: ' + this.src);"/>
                 <p id="shape-description" style="font-size: 0.85em; color: #777; margin-top: 5px;">เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง</p>
             </div>
             
@@ -228,11 +231,11 @@
             }
         };
 
-        // ********** แก้ไขพาธ: นำ '/images/' ออกตามโครงสร้างไฟล์ที่ส่งมา **********
-        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/'; 
+        // ********** แก้ไข: เปลี่ยนกลับไปใช้ URL ของ GitHub ตามที่ร้องขอ **********
+        // URL ของ GitHub ที่อาจมีปัญหาในการโหลดในบางสภาพแวดล้อม
+        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/';
         
         const shapeVisuals = {
-            // โค้ดจะดึงไฟล์จาก: .../calculatorJTW/main/sheet.png (แทนที่จะเป็น /images/sheet.png)
             'sheet': { url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
             'flat_bar': { url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
             'hexagon': { url: SHAPE_BASE_PATH + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
@@ -243,6 +246,7 @@
             'pipe': { url: SHAPE_BASE_PATH + 'pipe.png', desc: 'รูปทรงท่อกลม'},
             'round_bar': { url: SHAPE_BASE_PATH + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
         };
+        // *************************************************************************
         
         // ฟังก์ชันสำหรับสร้าง Dropdown หน่วยวัดทั้งหมด
         function getAllUnitSelect(id, defaultUnit = 'mm') {
@@ -274,10 +278,12 @@
             // --- 1. Update Shape Visuals ---
             const visual = shapeVisuals[shape];
             if (visual) {
-                // โหลดภาพจาก PATH Absolute ที่แก้ไขแล้ว
+                console.log("Setting image source to:", visual.url); // Log เพื่อดีบัก
+                // โหลดภาพจาก PATH GitHub ตามที่ร้องขอ
                 shapeImage.src = visual.url;
                 shapeImage.alt = visual.desc;
                 shapeDesc.innerText = visual.desc;
+                // เปลี่ยนกลับเป็น block เพื่อให้แสดงผลแบบชิดซ้าย
                 shapeImage.style.display = 'block'; 
             } else {
                 shapeImage.style.display = 'none'; 
@@ -391,6 +397,7 @@
                 } else if (shape === 'hexagon') {
                     const size = parseFloat(document.getElementById('size').value) * (parseFloat(document.getElementById('size_unit').value) || 1);
                     const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
+                    // Area_mm^2 = (3 * sqrt(3) / 2) * size^2
                     const area_constant = (3 * Math.sqrt(3) / 2);
                     weight_per_piece = (Math.pow(size, 2) * area_constant * length) * density / 1000000000;
                 } else if (shape === 'square_pipe' || shape === 'rectangular_pipe') {
@@ -440,4 +447,3 @@
 
 </body>
 </html>
-
