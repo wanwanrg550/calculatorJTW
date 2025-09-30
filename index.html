@@ -103,21 +103,25 @@
         
         /* CSS สำหรับแสดงรูปทรงวัสดุ */
         .shape-image-container {
-            text-align: center;
             margin-bottom: 20px;
             padding: 15px;
             border: 1px dashed #007bff50;
             border-radius: 8px;
             background-color: #f8faff;
+            /* ใช้ Flexbox จัดรูปภาพและข้อความให้อยู่ตรงกลางแนวนอน */
+            display: flex; 
+            flex-direction: column;
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically if container height allows */
         }
         .shape-image-container img {
+            display: block !important; 
             max-width: 90%;
-            /* ขนาดที่แนะนำเพื่อให้แสดงผลได้ดี */
             max-height: 100px; 
             height: auto;
             border-radius: 4px;
-            display: none; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 8px; /* Space between image and description */
         }
     </style>
 </head>
@@ -128,7 +132,7 @@
 
         <div class="header">
             <div class="logo">
-                <!-- โลโก้ใช้พาธเดิมที่คุณยืนยันว่าทำงานได้ -->
+                <!-- โลโก้ใช้พาธเดิมที่ควรจะทำงานได้ -->
                 <img src="./logo.png" alt="Jutawan Logo" style="height: 50px; width: auto; border-radius: 4px; display: block;"/>
             </div>
             <div class="contact-info">
@@ -171,9 +175,7 @@
             
             <!-- ส่วนใหม่สำหรับแสดงรูปภาพรูปทรง -->
             <div id="shape-visual" class="shape-image-container">
-                <!-- รูปภาพจะถูกโหลดจาก URL ที่คุณกำหนดใน JavaScript -->
-                <!-- เพิ่ม onerror เพื่อดีบักปัญหาการโหลด -->
-                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;" onerror="console.error('Image Load Error: ' + this.src);"/>
+                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px; display: none;"/>
                 <p id="shape-description" style="font-size: 0.85em; color: #777; margin-top: 5px;">เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง</p>
             </div>
             
@@ -228,21 +230,23 @@
             }
         };
 
-        // ********** แก้ไขพาธ: นำ '/images/' ออกตามโครงสร้างไฟล์ที่ส่งมา **********
-        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/'; 
+        // ********** เปลี่ยนไปใช้ Local Asset Paths ที่ได้รับการยืนยันแล้ว **********
         
+        // เราจะไม่ใช้ SHAPE_BASE_PATH จาก GitHub อีกต่อไป เพื่อหลีกเลี่ยงปัญหา CORS
+        
+        // อัปเดต shapeVisuals ให้ใช้ลิงก์ไฟล์ที่อัปโหลดโดยตรง
         const shapeVisuals = {
-            // โค้ดจะดึงไฟล์จาก: .../calculatorJTW/main/sheet.png (แทนที่จะเป็น /images/sheet.png)
-            'sheet': { url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
-            'flat_bar': { url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
-            'hexagon': { url: SHAPE_BASE_PATH + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
-            'square_pipe': { url: SHAPE_BASE_PATH + 'square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
-            'rectangular_pipe': { url: SHAPE_BASE_PATH + 'rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
-            'angle': { url: SHAPE_BASE_PATH + 'angle.png', desc: 'รูปทรงฉาก (L-shape)'},
-            'square_bar': { url: SHAPE_BASE_PATH + 'square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
-            'pipe': { url: SHAPE_BASE_PATH + 'pipe.png', desc: 'รูปทรงท่อกลม'},
-            'round_bar': { url: SHAPE_BASE_PATH + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
+            'sheet': { url: './sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
+            'flat_bar': { url: './flat_bar.png', desc: 'รูปทรงแบน'},
+            'hexagon': { url: './hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
+            'square_pipe': { url: './square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
+            'rectangular_pipe': { url: './rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
+            'angle': { url: './angle.png', desc: 'รูปทรงฉาก (L-shape)'},
+            'square_bar': { url: './square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
+            'pipe': { url: './pipe.png', desc: 'รูปทรงท่อกลม'},
+            'round_bar': { url: './round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
         };
+        // *************************************************************************
         
         // ฟังก์ชันสำหรับสร้าง Dropdown หน่วยวัดทั้งหมด
         function getAllUnitSelect(id, defaultUnit = 'mm') {
@@ -274,11 +278,14 @@
             // --- 1. Update Shape Visuals ---
             const visual = shapeVisuals[shape];
             if (visual) {
-                // โหลดภาพจาก PATH Absolute ที่แก้ไขแล้ว
+                // ใช้ URL จาก Local Files
                 shapeImage.src = visual.url;
                 shapeImage.alt = visual.desc;
                 shapeDesc.innerText = visual.desc;
                 shapeImage.style.display = 'block'; 
+                
+                // ไม่ต้องใช้ onerror/onload สำหรับลิงก์ Local File
+                
             } else {
                 shapeImage.style.display = 'none'; 
                 shapeDesc.innerText = 'เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง';
@@ -293,8 +300,8 @@
                 html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width">ความกว้าง:</label><input type="number" id="width" step="0.01" min="1">${getAllUnitSelect('width_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'hexagon' || shape === 'square_bar') {
-                html += `<div class="input-group"><label for="size">ขนาด:</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
+            } else if (shape === 'hexagon') {
+                html += `<div class="input-group"><label for="size">ขนาด (W/H):</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
             } else if (shape === 'square_pipe' || shape === 'rectangular_pipe') {
                 html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
@@ -305,6 +312,9 @@
                 html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width1">ความกว้าง 1:</label><input type="number" id="width1" step="0.01" min="1">${getAllUnitSelect('width1_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width2">ความกว้าง 2:</label><input type="number" id="width2" step="0.01" min="1">${getAllUnitSelect('width2_unit', 'mm')}</div>`;
+                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
+            } else if (shape === 'square_bar') {
+                html += `<div class="input-group"><label for="size">ขนาด:</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
             } else if (shape === 'pipe') {
                 html += `<div class="input-group"><label for="od">เส้นผ่านศูนย์กลางนอก:</label><input type="number" id="od" step="0.01" min="1">${getAllUnitSelect('od_unit', 'mm')}</div>`;
@@ -391,6 +401,7 @@
                 } else if (shape === 'hexagon') {
                     const size = parseFloat(document.getElementById('size').value) * (parseFloat(document.getElementById('size_unit').value) || 1);
                     const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
+                    // Area_mm^2 = (3 * sqrt(3) / 2) * size^2
                     const area_constant = (3 * Math.sqrt(3) / 2);
                     weight_per_piece = (Math.pow(size, 2) * area_constant * length) * density / 1000000000;
                 } else if (shape === 'square_pipe' || shape === 'rectangular_pipe') {
