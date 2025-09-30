@@ -128,7 +128,7 @@
 
         <div class="header">
             <div class="logo">
-                <!-- โลโก้ยังคงชี้ไปที่ไฟล์ logo.png ในโฟลเดอร์เดียวกัน -->
+                <!-- โลโก้ใช้พาธเดิมที่คุณยืนยันว่าทำงานได้ -->
                 <img src="./logo.png" alt="Jutawan Logo" style="height: 50px; width: auto; border-radius: 4px; display: block;"/>
             </div>
             <div class="contact-info">
@@ -227,9 +227,7 @@
             }
         };
 
-        // *******************************************************************
-        // *** Raw Content URL ที่ถูกต้องแล้ว ***
-        // *******************************************************************
+        // *** Raw Content URL ที่ถูกต้องแล้วสำหรับรูปทรงวัสดุ ***
         const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/images/'; 
         
         const shapeVisuals = {
@@ -243,7 +241,6 @@
             'pipe': { url: SHAPE_BASE_PATH + 'pipe.png', desc: 'รูปทรงท่อกลม'},
             'round_bar': { url: SHAPE_BASE_PATH + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
         };
-        // *******************************************************************
         
         // ฟังก์ชันสำหรับสร้าง Dropdown หน่วยวัดทั้งหมด
         function getAllUnitSelect(id, defaultUnit = 'mm') {
@@ -298,6 +295,7 @@
                 html += `<div class="input-group"><label for="size">ขนาด:</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
             } else if (shape === 'square_pipe' || shape === 'rectangular_pipe') {
+                // ส่วนที่ถูกตัดไปในข้อความก่อนหน้า ถูกเติมกลับเข้ามา
                 html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width">ความกว้าง:</label><input type="number" id="width" step="0.01" min="1">${getAllUnitSelect('width_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="height">ความสูง:</label><input type="number" id="height" step="0.01" min="1">${getAllUnitSelect('height_unit', 'mm')}</div>`;
