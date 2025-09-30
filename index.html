@@ -108,6 +108,11 @@
             border: 1px dashed #007bff50;
             border-radius: 8px;
             background-color: #f8faff;
+            /* ใช้ Flexbox จัดรูปภาพและข้อความให้อยู่ตรงกลางแนวนอน */
+            display: flex; 
+            flex-direction: column;
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically if container height allows */
         }
         .shape-image-container img {
             display: block !important; 
@@ -116,6 +121,7 @@
             height: auto;
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 8px; /* Space between image and description */
         }
     </style>
 </head>
@@ -279,11 +285,15 @@
                 shapeDesc.innerText = visual.desc;
                 shapeImage.style.display = 'block'; 
                 
-                // *** ข้อควรระวัง: เนื่องจาก URL ที่ผู้ใช้แจ้งมาขึ้น 404
-                // เราจะเพิ่ม fallback ในกรณีที่โหลดภาพไม่สำเร็จ
+                // เพิ่มการจัดการเมื่อโหลดภาพล้มเหลว
                 shapeImage.onerror = () => {
-                    shapeDesc.innerText = visual.desc + " (ไม่สามารถโหลดภาพจาก GitHub ได้)";
+                    shapeDesc.innerText = visual.desc + " (ไม่สามารถโหลดภาพจาก GitHub ได้ ตรวจสอบ Console สำหรับข้อผิดพลาด CORS)";
                     shapeImage.style.display = 'none';
+                };
+                // เพิ่มการจัดการเมื่อโหลดภาพสำเร็จ (ป้องกันไม่ให้มีการแสดงผลผิดพลาดซ้ำ)
+                shapeImage.onload = () => {
+                    shapeDesc.innerText = visual.desc;
+                    shapeImage.style.display = 'block';
                 };
 
             } else {
@@ -312,6 +322,14 @@
                 html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width1">ความกว้าง 1:</label><input type="number" id="width1" step="0.01" min="1">${getAllUnitSelect('width1_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width2">ความกว้าง 2:</label><input type="number" id="width2" step="0.01" min="1">${getAllUnitSelect('width2_unit', 'mm')}</div>`;
+                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
+            } else if (shape === 'square_bar') {
+                const size = parseFloat(document.getElementById('size').value) * (parseFloat(document.getElementById('size_unit').value) || 1);
+                const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
+                // Area_mm^2 = S^2
+                weight_per_piece = Math.pow(size, 2) * length * density / 1000000000;
+                
+                html += `<div class="input-group"><label for="size">ขนาด:</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
             } else if (shape === 'pipe') {
                 html += `<div class="input-group"><label for="od">เส้นผ่านศูนย์กลางนอก:</label><input type="number" id="od" step="0.01" min="1">${getAllUnitSelect('od_unit', 'mm')}</div>`;
