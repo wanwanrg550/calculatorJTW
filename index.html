@@ -103,7 +103,6 @@
         
         /* CSS สำหรับแสดงรูปทรงวัสดุ */
         .shape-image-container {
-            /* text-align: center; นี้คือส่วนที่ใช้จัดกึ่งกลางรูปภาพ (inline/inline-block) */
             text-align: center;
             margin-bottom: 20px;
             padding: 15px;
@@ -117,7 +116,6 @@
             max-height: 100px; 
             height: auto;
             border-radius: 4px;
-            /* ซ่อนภาพเริ่มต้น โดย JS จะเปลี่ยนเป็น inline-block เมื่อโหลด */
             display: none; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
@@ -173,9 +171,9 @@
             
             <!-- ส่วนใหม่สำหรับแสดงรูปภาพรูปทรง -->
             <div id="shape-visual" class="shape-image-container">
+                <!-- รูปภาพจะถูกโหลดจาก URL ที่คุณกำหนดใน JavaScript -->
                 <!-- เพิ่ม onerror เพื่อดีบักปัญหาการโหลด -->
-                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;" 
-                     onerror="console.error('Image Load Error: Cannot fetch image from: ' + this.src);"/>
+                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;" onerror="console.error('Image Load Error: ' + this.src);"/>
                 <p id="shape-description" style="font-size: 0.85em; color: #777; margin-top: 5px;">เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง</p>
             </div>
             
@@ -230,23 +228,21 @@
             }
         };
 
-        // ********** แก้ไข: เปลี่ยนไปใช้ Placeholder URL ที่โหลดได้แน่นอน เนื่องจากลิงก์ GitHub ล้มเหลว **********
-        // URL สำหรับสร้างรูปภาพทดแทน (ขนาด 150x80, สีน้ำเงินตามธีม)
-        const SHAPE_BASE_PATH_PLACEHOLDER = 'https://placehold.co/150x80/007bff/ffffff?font=inter&text=';
+        // ********** แก้ไขพาธ: นำ '/images/' ออกตามโครงสร้างไฟล์ที่ส่งมา **********
+        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/'; 
         
         const shapeVisuals = {
-            // ใช้ URL รูปภาพทดแทนที่มีชื่อรูปทรงกำกับอยู่
-            'sheet': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'SHEET', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
-            'flat_bar': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'FLAT+BAR', desc: 'รูปทรงแบน'},
-            'hexagon': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'HEXAGON', desc: 'รูปทรงหกเหลี่ยมตัน'},
-            'square_pipe': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'SQ+PIPE', desc: 'รูปทรงท่อสี่เหลี่ยม'},
-            'rectangular_pipe': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'RECT+PIPE', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
-            'angle': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'ANGLE', desc: 'รูปทรงฉาก (L-shape)'},
-            'square_bar': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'SQ+BAR', desc: 'รูปทรงสี่เหลี่ยมตัน'},
-            'pipe': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'PIPE', desc: 'รูปทรงท่อกลม'},
-            'round_bar': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'ROUND+BAR', desc: 'รูปทรงเส้นกลมตัน'}
+            // โค้ดจะดึงไฟล์จาก: .../calculatorJTW/main/sheet.png (แทนที่จะเป็น /images/sheet.png)
+            'sheet': { url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
+            'flat_bar': { url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
+            'hexagon': { url: SHAPE_BASE_PATH + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
+            'square_pipe': { url: SHAPE_BASE_PATH + 'square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
+            'rectangular_pipe': { url: SHAPE_BASE_PATH + 'rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
+            'angle': { url: SHAPE_BASE_PATH + 'angle.png', desc: 'รูปทรงฉาก (L-shape)'},
+            'square_bar': { url: SHAPE_BASE_PATH + 'square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
+            'pipe': { url: SHAPE_BASE_PATH + 'pipe.png', desc: 'รูปทรงท่อกลม'},
+            'round_bar': { url: SHAPE_BASE_PATH + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
         };
-        // *************************************************************************
         
         // ฟังก์ชันสำหรับสร้าง Dropdown หน่วยวัดทั้งหมด
         function getAllUnitSelect(id, defaultUnit = 'mm') {
@@ -278,13 +274,11 @@
             // --- 1. Update Shape Visuals ---
             const visual = shapeVisuals[shape];
             if (visual) {
-                console.log("Setting image source to:", visual.url); // Log เพื่อดีบัก
-                // โหลดภาพจาก PATH Placeholder ที่แก้ไขแล้ว
+                // โหลดภาพจาก PATH Absolute ที่แก้ไขแล้ว
                 shapeImage.src = visual.url;
                 shapeImage.alt = visual.desc;
                 shapeDesc.innerText = visual.desc;
-                // ใช้ inline-block เพื่อให้ text-align: center ทำงาน
-                shapeImage.style.display = 'inline-block'; 
+                shapeImage.style.display = 'block'; 
             } else {
                 shapeImage.style.display = 'none'; 
                 shapeDesc.innerText = 'เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง';
@@ -446,3 +440,4 @@
 
 </body>
 </html>
+
