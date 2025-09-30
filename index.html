@@ -103,6 +103,7 @@
         
         /* CSS สำหรับแสดงรูปทรงวัสดุ */
         .shape-image-container {
+            /* text-align: center; นี้คือส่วนที่ใช้จัดกึ่งกลางรูปภาพ (inline/inline-block) */
             text-align: center;
             margin-bottom: 20px;
             padding: 15px;
@@ -116,8 +117,8 @@
             max-height: 100px; 
             height: auto;
             border-radius: 4px;
+            /* ซ่อนภาพเริ่มต้น โดย JS จะเปลี่ยนเป็น inline-block เมื่อโหลด */
             display: none; 
-            margin: 0 auto; /* เพิ่มบรรทัดนี้เพื่อจัดกึ่งกลางรูปภาพแบบ block */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
     </style>
@@ -172,9 +173,9 @@
             
             <!-- ส่วนใหม่สำหรับแสดงรูปภาพรูปทรง -->
             <div id="shape-visual" class="shape-image-container">
-                <!-- รูปภาพจะถูกโหลดจาก URL ที่คุณกำหนดใน JavaScript -->
                 <!-- เพิ่ม onerror เพื่อดีบักปัญหาการโหลด -->
-                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;" onerror="console.error('Image Load Error: ' + this.src);"/>
+                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;" 
+                     onerror="console.error('Image Load Error: Cannot fetch image from: ' + this.src);"/>
                 <p id="shape-description" style="font-size: 0.85em; color: #777; margin-top: 5px;">เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง</p>
             </div>
             
@@ -229,21 +230,23 @@
             }
         };
 
-        // ********** แก้ไขพาธ: นำ '/images/' ออกตามโครงสร้างไฟล์ที่ส่งมา **********
-        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/'; 
+        // ********** แก้ไข: เปลี่ยนไปใช้ Placeholder URL ที่โหลดได้แน่นอน **********
+        // URL สำหรับสร้างรูปภาพทดแทน (ขนาด 150x80, สีน้ำเงินตามธีม)
+        const SHAPE_BASE_PATH_PLACEHOLDER = 'https://placehold.co/150x80/007bff/ffffff?font=inter&text=';
         
         const shapeVisuals = {
-            // โค้ดจะดึงไฟล์จาก: .../calculatorJTW/main/sheet.png (แทนที่จะเป็น /images/sheet.png)
-            'sheet': { url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
-            'flat_bar': { url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
-            'hexagon': { url: SHAPE_BASE_PATH + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
-            'square_pipe': { url: SHAPE_BASE_PATH + 'square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
-            'rectangular_pipe': { url: SHAPE_BASE_PATH + 'rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
-            'angle': { url: SHAPE_BASE_PATH + 'angle.png', desc: 'รูปทรงฉาก (L-shape)'},
-            'square_bar': { url: SHAPE_BASE_PATH + 'square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
-            'pipe': { url: SHAPE_BASE_PATH + 'pipe.png', desc: 'รูปทรงท่อกลม'},
-            'round_bar': { url: SHAPE_BASE_PATH + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
+            // ใช้ URL รูปภาพทดแทนที่มีชื่อรูปทรงกำกับอยู่
+            'sheet': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'SHEET', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
+            'flat_bar': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'FLAT+BAR', desc: 'รูปทรงแบน'},
+            'hexagon': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'HEXAGON', desc: 'รูปทรงหกเหลี่ยมตัน'},
+            'square_pipe': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'SQ+PIPE', desc: 'รูปทรงท่อสี่เหลี่ยม'},
+            'rectangular_pipe': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'RECT+PIPE', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
+            'angle': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'ANGLE', desc: 'รูปทรงฉาก (L-shape)'},
+            'square_bar': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'SQ+BAR', desc: 'รูปทรงสี่เหลี่ยมตัน'},
+            'pipe': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'PIPE', desc: 'รูปทรงท่อกลม'},
+            'round_bar': { url: SHAPE_BASE_PATH_PLACEHOLDER + 'ROUND+BAR', desc: 'รูปทรงเส้นกลมตัน'}
         };
+        // *************************************************************************
         
         // ฟังก์ชันสำหรับสร้าง Dropdown หน่วยวัดทั้งหมด
         function getAllUnitSelect(id, defaultUnit = 'mm') {
@@ -275,11 +278,12 @@
             // --- 1. Update Shape Visuals ---
             const visual = shapeVisuals[shape];
             if (visual) {
-                // โหลดภาพจาก PATH Absolute ที่แก้ไขแล้ว
+                // โหลดภาพจาก PATH Placeholder ที่แก้ไขแล้ว
                 shapeImage.src = visual.url;
                 shapeImage.alt = visual.desc;
                 shapeDesc.innerText = visual.desc;
-                shapeImage.style.display = 'block'; 
+                // ใช้ inline-block เพื่อให้ text-align: center ทำงาน
+                shapeImage.style.display = 'inline-block'; 
             } else {
                 shapeImage.style.display = 'none'; 
                 shapeDesc.innerText = 'เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง';
@@ -305,139 +309,4 @@
             } else if (shape === 'angle') {
                 html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width1">ความกว้าง 1:</label><input type="number" id="width1" step="0.01" min="1">${getAllUnitSelect('width1_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="width2">ความกว้าง 2:</label><input type="number" id="width2" step="0.01" min="1">${getAllUnitSelect('width2_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'pipe') {
-                html += `<div class="input-group"><label for="od">เส้นผ่านศูนย์กลางนอก:</label><input type="number" id="od" step="0.01" min="1">${getAllUnitSelect('od_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="id">เส้นผ่านศูนย์กลางใน:</label><input type="number" id="id" step="0.01" min="1">${getAllUnitSelect('id_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            } else if (shape === 'round_bar') {
-                html += `<div class="input-group"><label for="diameter">เส้นผ่านศูนย์กลาง:</label><input type="number" id="diameter" step="0.01" min="1">${getAllUnitSelect('diameter_unit', 'mm')}</div>`;
-                html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
-            }
-
-            inputFieldsDiv.innerHTML = html;
-        }
-
-        // อัปเดต Dropdown เกรดวัสดุตามประเภทวัสดุ
-        function updateGradeDropdown() {
-            const materialType = document.getElementById('material_type').value;
-            const gradeDropdown = document.getElementById('grade');
-            
-            // Clear existing options
-            gradeDropdown.innerHTML = '';
-            
-            // Populate with new options
-            const currentGrades = gradesData[materialType];
-            for (const gradeName in currentGrades) {
-                const option = document.createElement('option');
-                option.value = gradeName; 
-                option.text = gradeName;
-                gradeDropdown.appendChild(option);
-            }
-
-            // Update input fields based on the new shape selection
-            updateInputFields();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            updateGradeDropdown(); // Initial population
-            document.getElementById('material_type').addEventListener('change', updateGradeDropdown);
-            document.getElementById('shape').addEventListener('change', updateInputFields);
-            updateInputFields(); // Call this initially to show the first image
-        });
-        
-        function calculateWeight() {
-            const shape = document.getElementById('shape').value;
-            const gradeName = document.getElementById('grade').value; 
-            const materialType = document.getElementById('material_type').value;
-            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
-            
-            let density;
-            const gradeData = gradesData[materialType][gradeName];
-            
-            // --- Determine Density based on Shape and Grade ---
-            if (typeof gradeData === 'object' && gradeData !== null) {
-                const rectShapes = ['sheet', 'flat_bar', 'square_bar', 'hexagon', 'square_pipe', 'rectangular_pipe', 'angle'];
-                const roundShapes = ['round_bar', 'pipe'];
-
-                if (rectShapes.includes(shape)) {
-                    density = gradeData.rect;
-                } else if (roundShapes.includes(shape)) {
-                    density = gradeData.round;
-                } else {
-                    density = gradeData.rect; 
-                }
-            } else {
-                density = gradeData;
-            }
-
-            if (!density || isNaN(density)) {
-                document.getElementById('result').innerText = `น้ำหนักรวม: 0.00 กิโลกรัม (Error: ไม่พบค่าความหนาแน่น)`;
-                return;
-            }
-            // --- Density Determination Complete ---
-
-            let weight_per_piece = 0;
-
-            try {
-                // Note: All dimensions (thickness, width, size, diameter) are converted to mm
-                // Length is converted to mm (default is m * 1000)
-                
-                if (shape === 'sheet' || shape === 'flat_bar') {
-                    const thickness = parseFloat(document.getElementById('thickness').value) * (parseFloat(document.getElementById('thickness_unit').value) || 1);
-                    const width = parseFloat(document.getElementById('width').value) * (parseFloat(document.getElementById('width_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    weight_per_piece = (thickness * width * length) * density / 1000000000;
-                } else if (shape === 'hexagon') {
-                    const size = parseFloat(document.getElementById('size').value) * (parseFloat(document.getElementById('size_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    const area_constant = (3 * Math.sqrt(3) / 2);
-                    weight_per_piece = (Math.pow(size, 2) * area_constant * length) * density / 1000000000;
-                } else if (shape === 'square_pipe' || shape === 'rectangular_pipe') {
-                    const thickness = parseFloat(document.getElementById('thickness').value) * (parseFloat(document.getElementById('thickness_unit').value) || 1);
-                    const width = parseFloat(document.getElementById('width').value) * (parseFloat(document.getElementById('width_unit').value) || 1);
-                    const height = parseFloat(document.getElementById('height').value) * (parseFloat(document.getElementById('height_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = (W*H) - ((W - 2T) * (H - 2T))
-                    const area_mm = (width * height) - ((width - (thickness * 2)) * (height - (thickness * 2)));
-                    weight_per_piece = area_mm * length * density / 1000000000;
-                } else if (shape === 'angle') {
-                    const thickness = parseFloat(document.getElementById('thickness').value) * (parseFloat(document.getElementById('thickness_unit').value) || 1);
-                    const width1 = parseFloat(document.getElementById('width1').value) * (parseFloat(document.getElementById('width1_unit').value) || 1);
-                    const width2 = parseFloat(document.getElementById('width2').value) * (parseFloat(document.getElementById('width2_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = (W1*T) + ((W2-T)*T)
-                    const area_mm = (width1 * thickness) + ((width2 - thickness) * thickness);
-                    weight_per_piece = area_mm * length * density / 1000000000;
-                } else if (shape === 'square_bar') {
-                    const size = parseFloat(document.getElementById('size').value) * (parseFloat(document.getElementById('size_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = S^2
-                    weight_per_piece = Math.pow(size, 2) * length * density / 1000000000;
-                } else if (shape === 'pipe') {
-                    const od = parseFloat(document.getElementById('od').value) * (parseFloat(document.getElementById('od_unit').value) || 1);
-                    const id = parseFloat(document.getElementById('id').value) * (parseFloat(document.getElementById('id_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = (OD^2 - ID^2) * PI / 4
-                    const area_mm = (Math.pow(od, 2) - Math.pow(id, 2)) * PI / 4;
-                    weight_per_piece = area_mm * length * density / 1000000000;
-                } else if (shape === 'round_bar') {
-                    const diameter = parseFloat(document.getElementById('diameter').value) * (parseFloat(document.getElementById('diameter_unit').value) || 1);
-                    const length = parseFloat(document.getElementById('length').value) * (parseFloat(document.getElementById('length_unit').value) || 1);
-                    // Area_mm^2 = D^2 * PI / 4
-                    const area_mm = Math.pow(diameter, 2) * PI / 4;
-                    weight_per_piece = area_mm * length * density / 1000000000;
-                }
-            } catch (e) {
-                console.error("Calculation Error:", e);
-                weight_per_piece = 0;
-            }
-            
-            const total_weight = weight_per_piece * quantity;
-            document.getElementById('result').innerText = `น้ำหนักรวม: ${total_weight.toFixed(2)} กิโลกรัม (Density: ${density.toFixed(0)} kg/m³)`;
-        }
-    </script>
-
-</body>
-</html>
+                html += `<div class="input-group"><label for="width2">ความกว้าง 2:</label><input type="number" id="width2" step="0.01" min="1">${
