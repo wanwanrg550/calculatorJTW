@@ -103,8 +103,6 @@
         
         /* CSS สำหรับแสดงรูปทรงวัสดุ */
         .shape-image-container {
-            /* ลบ text-align: center; ออกไปตามคำขอ เพื่อให้รูปภาพแสดงผลชิดซ้าย */
-            /* text-align: center; */ 
             margin-bottom: 20px;
             padding: 15px;
             border: 1px dashed #007bff50;
@@ -112,14 +110,11 @@
             background-color: #f8faff;
         }
         .shape-image-container img {
-            /* กำหนดเป็น block เพื่อให้รูปภาพแสดงผลแบบชิดซ้าย */
             display: block !important; 
             max-width: 90%;
-            /* ขนาดที่แนะนำเพื่อให้แสดงผลได้ดี */
             max-height: 100px; 
             height: auto;
             border-radius: 4px;
-            /* ซ่อนภาพเริ่มต้น โดย JS จะเปลี่ยนเป็น block เมื่อโหลด */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
     </style>
@@ -174,9 +169,7 @@
             
             <!-- ส่วนใหม่สำหรับแสดงรูปภาพรูปทรง -->
             <div id="shape-visual" class="shape-image-container">
-                <!-- เพิ่ม onerror เพื่อดีบักปัญหาการโหลด -->
-                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px; display: none;" 
-                     onerror="console.error('Image Load Error: Cannot fetch image from: ' + this.src);"/>
+                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px; display: none;"/>
                 <p id="shape-description" style="font-size: 0.85em; color: #777; margin-top: 5px;">เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง</p>
             </div>
             
@@ -231,10 +224,12 @@
             }
         };
 
-        // ********** แก้ไข: เปลี่ยนกลับไปใช้ URL ของ GitHub ตามที่ร้องขอ **********
-        // URL ของ GitHub ที่อาจมีปัญหาในการโหลดในบางสภาพแวดล้อม
+        // ********** การเปลี่ยนกลับ: ใช้ลิงก์ GitHub ภายนอก **********
+        
+        // พาธหลักไปยังไฟล์รูปภาพบน GitHub
         const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/';
         
+        // อัปเดต shapeVisuals ให้ใช้ลิงก์ PNG ภายนอก
         const shapeVisuals = {
             'sheet': { url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
             'flat_bar': { url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
@@ -278,12 +273,10 @@
             // --- 1. Update Shape Visuals ---
             const visual = shapeVisuals[shape];
             if (visual) {
-                console.log("Setting image source to:", visual.url); // Log เพื่อดีบัก
-                // โหลดภาพจาก PATH GitHub ตามที่ร้องขอ
+                // ใช้ URL จาก GitHub
                 shapeImage.src = visual.url;
                 shapeImage.alt = visual.desc;
                 shapeDesc.innerText = visual.desc;
-                // เปลี่ยนกลับเป็น block เพื่อให้แสดงผลแบบชิดซ้าย
                 shapeImage.style.display = 'block'; 
             } else {
                 shapeImage.style.display = 'none'; 
