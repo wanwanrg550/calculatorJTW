@@ -228,21 +228,21 @@
         };
 
         // *******************************************************************
-        // ********** REPLACE THESE URLS WITH YOUR ACTUAL HOSTED PNG PATHS **********
+        // *** แก้ไขเป็น RAW CONTENT URL ของคุณแล้ว ***
+        // *** URL นี้ชี้ไปยังโฟลเดอร์ images/ บน Raw GitHub Content ***
         // *******************************************************************
-        // Placeholder URLs ที่คุณต้องนำไปแทนที่ด้วย URL จริงจาก GitHub/Hosting ของคุณ
-        const SHAPE_BASE_URL = 'https://github.com/wanwanrg550/calculatorJTW/blob/main/images/'; // URL ฐานสำหรับเก็บรูปภาพ 
+        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/images/'; 
         
         const shapeVisuals = {
-            'sheet': { url: SHAPE_BASE_URL + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
-            'flat_bar': { url: SHAPE_BASE_URL + 'flat_bar.png', desc: 'รูปทรงแบน'},
-            'hexagon': { url: SHAPE_BASE_URL + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
-            'square_pipe': { url: SHAPE_BASE_URL + 'square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
-            'rectangular_pipe': { url: SHAPE_BASE_URL + 'rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
-            'angle': { url: SHAPE_BASE_URL + 'angle.png', desc: 'รูปทรงฉาก (L-shape)'},
-            'square_bar': { url: SHAPE_BASE_URL + 'square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
-            'pipe': { url: SHAPE_BASE_URL + 'pipe.png', desc: 'รูปทรงท่อกลม'},
-            'round_bar': { url: SHAPE_BASE_URL + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
+            'sheet': { url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
+            'flat_bar': { url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
+            'hexagon': { url: SHAPE_BASE_PATH + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
+            'square_pipe': { url: SHAPE_BASE_PATH + 'square_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยม'},
+            'rectangular_pipe': { url: SHAPE_BASE_PATH + 'rectangular_pipe.png', desc: 'รูปทรงท่อสี่เหลี่ยมผืนผ้า'},
+            'angle': { url: SHAPE_BASE_PATH + 'angle.png', desc: 'รูปทรงฉาก (L-shape)'},
+            'square_bar': { url: SHAPE_BASE_PATH + 'square_bar.png', desc: 'รูปทรงสี่เหลี่ยมตัน'},
+            'pipe': { url: SHAPE_BASE_PATH + 'pipe.png', desc: 'รูปทรงท่อกลม'},
+            'round_bar': { url: SHAPE_BASE_PATH + 'round_bar.png', desc: 'รูปทรงเส้นกลมตัน'}
         };
         // *******************************************************************
         
@@ -276,7 +276,7 @@
             // --- 1. Update Shape Visuals ---
             const visual = shapeVisuals[shape];
             if (visual) {
-                // โหลดภาพจาก URL ที่คุณกำหนด
+                // โหลดภาพจาก PATH Absolute ที่แก้ไขแล้ว
                 shapeImage.src = visual.url;
                 shapeImage.alt = visual.desc;
                 shapeDesc.innerText = visual.desc;
@@ -442,7 +442,3 @@
 
 </body>
 </html>
-
-
-
-
