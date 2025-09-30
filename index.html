@@ -172,7 +172,8 @@
             <!-- ส่วนใหม่สำหรับแสดงรูปภาพรูปทรง -->
             <div id="shape-visual" class="shape-image-container">
                 <!-- รูปภาพจะถูกโหลดจาก URL ที่คุณกำหนดใน JavaScript -->
-                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;"/>
+                <!-- เพิ่ม onerror เพื่อดีบักปัญหาการโหลด -->
+                <img id="shape-image" src="" alt="รูปทรงวัสดุ" style="max-height: 100px;" onerror="console.error('Image Load Error: ' + this.src);"/>
                 <p id="shape-description" style="font-size: 0.85em; color: #777; margin-top: 5px;">เลือกรูปทรงเพื่อแสดงภาพตัวอย่าง</p>
             </div>
             
@@ -227,10 +228,11 @@
             }
         };
 
-        // *** Raw Content URL ที่ถูกต้องแล้วสำหรับรูปทรงวัสดุ ***
-        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/images/'; 
+        // ********** แก้ไขพาธ: นำ '/images/' ออกตามโครงสร้างไฟล์ที่ส่งมา **********
+        const SHAPE_BASE_PATH = 'https://raw.githubusercontent.com/wanwanrg550/calculatorJTW/main/'; 
         
         const shapeVisuals = {
+            // โค้ดจะดึงไฟล์จาก: .../calculatorJTW/main/sheet.png (แทนที่จะเป็น /images/sheet.png)
             'sheet': { url: SHAPE_BASE_PATH + 'sheet.png', desc: 'รูปทรงแผ่นสี่เหลี่ยม'},
             'flat_bar': { url: SHAPE_BASE_PATH + 'flat_bar.png', desc: 'รูปทรงแบน'},
             'hexagon': { url: SHAPE_BASE_PATH + 'hexagon.png', desc: 'รูปทรงหกเหลี่ยมตัน'},
@@ -295,7 +297,6 @@
                 html += `<div class="input-group"><label for="size">ขนาด:</label><input type="number" id="size" step="0.01" min="1">${getAllUnitSelect('size_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="length">ความยาว:</label><input type="number" id="length" step="0.01" min="0.01">${getAllUnitSelect('length_unit', 'm')}</div>`;
             } else if (shape === 'square_pipe' || shape === 'rectangular_pipe') {
-                // ส่วนที่ถูกตัดไปในข้อความก่อนหน้า ถูกเติมกลับเข้ามา
                 html += `<div class="input-group"><label for="thickness">ความหนา:</label><input type="number" id="thickness" step="0.01" min="0.1">${getAllUnitSelect('thickness_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="width">ความกว้าง:</label><input type="number" id="width" step="0.01" min="1">${getAllUnitSelect('width_unit', 'mm')}</div>`;
                 html += `<div class="input-group"><label for="height">ความสูง:</label><input type="number" id="height" step="0.01" min="1">${getAllUnitSelect('height_unit', 'mm')}</div>`;
